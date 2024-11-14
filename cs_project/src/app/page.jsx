@@ -1,11 +1,10 @@
+import { redirect } from 'next/navigation';
 
-
-function Page() {
-  return (
-    <div>
-
-    </div>
-  );
+export const metadata = {
+  title: 'Home',
+  description: 'Home page',
 };
 
-export default Page;
+export default function Home() {
+  redirect('/login');
+}
