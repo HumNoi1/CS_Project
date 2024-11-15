@@ -1,60 +1,46 @@
-'use client';
+// src/app/login/page.jsx
+"use client";
 
-//Components
-import { checkSupabaseConnection, supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
+import { Lock, Mail } from "lucide-react";
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
+const LoginPage = () => {
   const router = useRouter();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const checkConnection = async () => {
-      const connected = await checkSupabaseConnection();
-      setIsConnected(connected);
-      if (!connected) {
-        setError('ไม่สามารถเชื่อมต่อกับระบบได้ กรุณาลองใหม่อีกครั้ง');
-      }
-    };
-    checkConnection();
-  }, []);
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!isConnected) {
-      setError('ไม่สามารถเชื่อมต่อกับระบบได้');
-      return;
-    }
-
-    setError(null);
     setLoading(true);
+    setError(null);
 
     try {
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .eq('password', password)
-        .single();
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
 
-      if (userError || !userData) {
-        throw new Error('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
-      }
+      if (error) throw error;
 
-      localStorage.setItem('user', JSON.stringify(userData));
-
-      if (userData.role === 'admin') {
-        router.push('/admin');
-      } else {
+      if (data?.user) {
+        console.log('Login successful');
         router.push('/dashboard');
       }
-      
     } catch (error) {
+      console.error('Login error:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -62,56 +48,71 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
-        <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-8">
-          เข้าสู่ระบบ
-        </h2>
+    <div className="min-h-screen bg-slate-800 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-slate-900 rounded-lg p-8 shadow-lg">
+        <div className="flex justify-center mb-8">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
+            <path d="M12 2L2 19H22L12 2ZM12 5.5L18.5 17H5.5L12 5.5Z"/>
+          </svg>
+        </div>
+
+        <h2 className="text-2xl font-bold text-white text-center mb-8">Welcome back</h2>
 
         {error && (
-          <div className="bg-red-50 text-red-500 p-3 rounded-md mb-4 text-center">
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500 text-red-500 rounded-lg">
             {error}
           </div>
         )}
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              อีเมล
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full bg-slate-800 text-white rounded-lg pl-12 pr-4 py-3 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                placeholder="Email address"
+                required
+              />
+            </div>
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              รหัสผ่าน
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full bg-slate-800 text-white rounded-lg pl-12 pr-4 py-3 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                placeholder="Password"
+                required
+              />
+            </div>
           </div>
 
           <button
             type="submit"
-            disabled={loading || !isConnected}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
+            disabled={loading}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-3 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+            {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
+
+        <p className="mt-6 text-center text-slate-400">
+          Don&apos;t have an account?{" "}
+          <a href="/signup" className="text-blue-500 hover:text-blue-400">
+            Sign up
+          </a>
+        </p>
       </div>
     </div>
   );
-}
+};
+
+export default LoginPage;
