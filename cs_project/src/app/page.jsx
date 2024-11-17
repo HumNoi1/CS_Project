@@ -1,6 +1,11 @@
-// src/app/page.jsx
-import { redirect } from 'next/navigation'
- 
+ import Dashboard from "@/components/Dashboard"
+
+//export default function Home() {
+  //redirect('/login')
+//}
+
 export default function Home() {
-  redirect('/login')
+  return (
+    <Dashboard />
+  )
 }

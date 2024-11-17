@@ -2,8 +2,16 @@
 
 import { Lock, Mail } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
+  const router = useRouter();
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    router.push("/dashboards");
+  };
+
   return (
     <div className="min-h-screen bg-slate-800 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-slate-900 rounded-lg p-8 shadow-lg">
@@ -16,7 +24,7 @@ const LoginPage = () => {
 
         <h2 className="text-2xl font-bold text-white text-center mb-8">Welcome back</h2>
 
-        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-6" onSubmit={handleLogin}>
           <div>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />

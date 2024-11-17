@@ -1,6 +1,11 @@
-// src/app/dashboard/page.jsx
+"use client";
+
 import Dashboard from '../../components/Dashboard';
 
-export default function DashboardPage() {
-  return <Dashboard />;
+function DashboardPage() {
+  return (
+    <Dashboard />
+  );
 }
+
+export default DashboardPage;
