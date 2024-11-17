@@ -1,9 +1,19 @@
 "use client";
 
-import { Lock, Mail, User } from "lucide-react";
-import Link from "next/link";
+import { Lock, Mail, User } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
 
 const SignUpPage = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Signup submitted:', { email, password, username });
+  };
+
   return (
     <div className="min-h-screen bg-slate-800 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-slate-900 rounded-lg p-8 shadow-lg">
@@ -15,14 +25,17 @@ const SignUpPage = () => {
 
         <h2 className="text-2xl font-bold text-white text-center mb-8">Create your account</h2>
 
-        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="w-full bg-slate-800 text-white rounded-lg pl-12 pr-4 py-3 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="Username"
+                required
               />
             </div>
           </div>
@@ -32,8 +45,11 @@ const SignUpPage = () => {
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-slate-800 text-white rounded-lg pl-12 pr-4 py-3 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="Email address"
+                required
               />
             </div>
           </div>
@@ -43,8 +59,11 @@ const SignUpPage = () => {
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-slate-800 text-white rounded-lg pl-12 pr-4 py-3 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="Password"
+                required
               />
             </div>
           </div>
@@ -59,7 +78,10 @@ const SignUpPage = () => {
 
         <p className="mt-6 text-center text-slate-400">
           Already have an account?{" "}
-          <Link href="/login" className="text-blue-500 hover:text-blue-400">
+          <Link 
+            href="/login" 
+            className="text-blue-500 hover:text-blue-400"
+          >
             Sign in
           </Link>
         </p>
