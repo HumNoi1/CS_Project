@@ -1,13 +1,14 @@
 "use client";
 
+//components
 import { Home, LogOut, Moon, Plus } from "lucide-react";
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const Dashboard = () => {
   const router = useRouter();
 
   const handleLogout = () => {
-    // Add any logout logic here
     router.push('/login');
   };
 
@@ -39,9 +40,11 @@ const Dashboard = () => {
         <div className="grid grid-cols-12 gap-4">
           {/* Add Button */}
           <div className="col-span-3">
-            <button className="w-full h-32 rounded-lg border-2 border-slate-600 flex items-center justify-center hover:bg-slate-700 transition-colors">
-              <Plus className="w-8 h-8 text-slate-400" />
-            </button>
+            <Link href='addclass'>
+              <button className="w-full h-32 rounded-lg border-2 border-slate-600 flex items-center justify-center hover:bg-slate-700 transition-colors">
+                <Plus className="w-8 h-8 text-slate-400" />
+              </button>
+            </Link>
           </div>
           
           {/* Folder */}

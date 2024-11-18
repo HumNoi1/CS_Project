@@ -15,7 +15,7 @@ const LoginPage = () => {
     // Here you would typically handle authentication
     console.log('Login submitted:', { email, password });
     // Navigate to dashboard after successful login
-    router.push('/dashboard');
+    router.push('/dashboards');
   };
 
   return (
