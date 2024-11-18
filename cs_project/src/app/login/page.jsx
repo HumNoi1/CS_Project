@@ -27,7 +27,7 @@ const LoginPage = () => {
           </svg>
         </div>
 
-        <h2 className="text-2xl font-bold text-white text-center mb-8">Welcome back</h2>
+        <h2 className="text-2xl font-bold text-white text-center mb-8">LLM Assistant</h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
