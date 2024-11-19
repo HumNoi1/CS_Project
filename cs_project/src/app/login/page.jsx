@@ -4,18 +4,59 @@ import { Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
+
+const CustomAlert = ({ children }) => (
+  <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-lg mb-6">
+    {children}
+  </div>
+);
 
 const LoginPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically handle authentication
-    console.log('Login submitted:', { email, password });
-    // Navigate to dashboard after successful login
-    router.push('/dashboards');
+    setError('');
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      if (data?.user) {
+        // Create or update user profile in database
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: data.user.id,
+            email: data.user.email,
+            last_login: new Date().toISOString(),
+          }, {
+            onConflict: 'id'
+          });
+
+        if (profileError) {
+          console.error('Error updating profile:', profileError);
+        }
+
+        // Navigate to dashboard after successful login
+        router.push('/dashboard');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err.message || 'Failed to sign in');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -29,6 +70,10 @@ const LoginPage = () => {
 
         <h2 className="text-2xl font-bold text-white text-center mb-8">LLM Assistant</h2>
 
+        {error && (
+          <CustomAlert>{error}</CustomAlert>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <div className="relative">
@@ -40,6 +85,7 @@ const LoginPage = () => {
                 className="w-full bg-slate-800 text-white rounded-lg pl-12 pr-4 py-3 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="Email address"
                 required
+                disabled={loading}
               />
             </div>
           </div>
@@ -54,15 +100,17 @@ const LoginPage = () => {
                 className="w-full bg-slate-800 text-white rounded-lg pl-12 pr-4 py-3 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="Password"
                 required
+                disabled={loading}
               />
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-3 transition-colors"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-3 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading}
           >
-            Sign in
+            {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
 
