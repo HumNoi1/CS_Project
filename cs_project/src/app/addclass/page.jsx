@@ -50,6 +50,7 @@ const AddClassForm = () => {
                 name="term"
                 value={formData.term}
                 onChange={handleChange}
+                placeholder="Enter Term"
                 className="w-full px-4 py-2 rounded-md bg-slate-700 border border-slate-600 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -61,6 +62,7 @@ const AddClassForm = () => {
                 name="subjectLessons"
                 value={formData.subjectLessons}
                 onChange={handleChange}
+                placeholder="Enter subject lessons"
                 className="w-full px-4 py-2 rounded-md bg-slate-700 border border-slate-600 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>

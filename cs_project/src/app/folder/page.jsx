@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
-import { FolderIcon } from 'lucide-react';
+import { FolderIcon, CircleArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+
 
 const FolderRow = () => {
   const folders = [
@@ -17,20 +19,11 @@ const FolderRow = () => {
         {/* Header with back button */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-white text-xl">software engineer</h1>
-          <button className="text-white hover:bg-slate-700 p-2 rounded-full transition-colors">
-            <svg 
-              width="24" 
-              height="24" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            >
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-          </button>
+          <Link href="./addclass">
+            <button className="text-white hover:bg-slate-700 p-2 rounded-full transition-colors">
+              <CircleArrowLeft />
+            </button>
+          </Link>
         </div>
 
         {/* Folder Row with Horizontal Scroll */}

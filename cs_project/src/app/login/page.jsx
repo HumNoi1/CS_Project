@@ -1,10 +1,11 @@
+// src/app/login/page.jsx
 "use client";
 
 import { Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 const CustomAlert = ({ children }) => (
   <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-lg mb-6">
@@ -18,6 +19,8 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  const supabase = createClientComponentClient();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,9 +33,11 @@ const LoginPage = () => {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
-      if (data?.user) {
+      if (data.user) {
         // Create or update user profile in database
         const { error: profileError } = await supabase
           .from('profiles')
@@ -48,11 +53,10 @@ const LoginPage = () => {
           console.error('Error updating profile:', profileError);
         }
 
-        // Navigate to dashboard after successful login
-        router.push('/dashboard');
+        // Navigate to dashboards after successful login
+        router.push('/dashboards');
       }
     } catch (err) {
-      console.error('Login error:', err);
       setError(err.message || 'Failed to sign in');
     } finally {
       setLoading(false);

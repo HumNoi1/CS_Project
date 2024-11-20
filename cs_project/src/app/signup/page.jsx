@@ -6,8 +6,10 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
-const CustomAlert = ({ children }) => (
-  <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-lg mb-6">
+const CustomAlert = ({ children, variant = 'error' }) => (
+  <div className={`${
+    variant === 'error' ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500'
+  } px-4 py-3 rounded-lg mb-6 border`}>
     {children}
   </div>
 );
@@ -19,6 +21,7 @@ const SignUpPage = () => {
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const validatePassword = (password) => {
     const minLength = 8;
@@ -45,66 +48,78 @@ const SignUpPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess(false);
     setLoading(true);
 
     try {
-      // Validate password
-      const passwordError = validatePassword(password);
-      if (passwordError) {
-        setError(passwordError);
-        setLoading(false);
-        return;
+      // Validate input
+      if (!email || !password || !username) {
+        throw new Error('Please fill in all fields');
       }
 
-      // Check if username already exists
-      const { data: existingUsers, error: checkError } = await supabase
+      const passwordError = validatePassword(password);
+      if (passwordError) {
+        throw new Error(passwordError);
+      }
+
+      // Check username
+      const { data: existingUser, error: checkError } = await supabase
         .from('profiles')
         .select('username')
         .eq('username', username)
-        .single();
+        .maybeSingle();
 
-      if (checkError && checkError.code !== 'PGRST116') {
-        throw checkError;
+      if (checkError) {
+        console.error('Error checking username:', checkError);
+        throw new Error('Error checking username availability');
       }
 
-      if (existingUsers) {
+      if (existingUser) {
         throw new Error('Username already taken');
       }
 
-      // Sign up the user
+      // Sign up
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          data: { username },
           emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: {
-            username,
-          },
         },
       });
 
       if (signUpError) throw signUpError;
 
-      if (data?.user) {
-        // Create user profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
+      if (!data.user) {
+        throw new Error('Signup failed');
+      }
+
+      // Create profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([
+          {
             id: data.user.id,
             username,
             email,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-          });
+          }
+        ]);
 
-        if (profileError) throw profileError;
-
-        // Show success message and redirect
-        router.push('/verify-email');
+      if (profileError) {
+        console.error('Profile error:', profileError);
+        throw new Error('Failed to create profile');
       }
+
+      setSuccess(true);
+      setTimeout(() => {
+        router.push('/verify-email');
+      }, 2000);
+
     } catch (err) {
       console.error('Signup error:', err);
-      setError(err.message || 'Failed to create account');
+      setError(err.message || 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -121,8 +136,11 @@ const SignUpPage = () => {
 
         <h2 className="text-2xl font-bold text-white text-center mb-8">Create your account</h2>
 
-        {error && (
-          <CustomAlert>{error}</CustomAlert>
+        {error && <CustomAlert variant="error">{error}</CustomAlert>}
+        {success && (
+          <CustomAlert variant="success">
+            Account created successfully! Redirecting...
+          </CustomAlert>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
