@@ -1,4 +1,4 @@
-import { Home, LogOut, Moon, Plus } from "lucide-react";
+import { Home, LogOut, Moon, } from "lucide-react";
 
 const Sidebar = () => {
   return (
