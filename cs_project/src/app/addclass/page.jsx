@@ -3,6 +3,7 @@
 //components
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { CircleArrowLeft } from 'lucide-react';
 
 const AddClassForm = () => {
   const [formData, setFormData] = useState({
@@ -27,6 +28,15 @@ const AddClassForm = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 p-6">
+      <div className="flex justify-between items-center mb-8">
+          <h1 className="text-white text-xl">software engineer</h1>
+          <Link href="./dashboards">
+            <button className="text-white hover:bg-slate-700 p-2 rounded-full transition-colors">
+              <CircleArrowLeft />
+            </button>
+          </Link>
+        </div>
+
       <div className="max-w-lg mx-auto bg-slate-800 rounded-lg shadow-xl text-white">
         <div className="p-6">
           <h2 className="text-2xl font-semibold mb-6">Add new class</h2>

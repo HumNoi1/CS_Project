@@ -1,12 +1,14 @@
 "use client";
 
-import { Home, LogOut, Moon, Sun, Plus } from "lucide-react";
+import { Home, LogOut, Moon, Sun, Plus, Menu } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { DiCodeigniter } from "react-icons/di";
+import { PiRobot } from "react-icons/pi";
+import { MdOutlineClass } from "react-icons/md";
 
 const Dashboard = () => {
   const router = useRouter();
@@ -53,6 +55,14 @@ const Dashboard = () => {
         <button className="p-2 text-slate-600 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors">
           <Home className="w-6 h-6" />
         </button>
+        <Link href="./compare">
+          <button className="p-2 text-slate-600 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors">
+            <PiRobot className="w-6 h-6" />
+          </button>
+        </Link>
+        <button className="p-2 text-slate-600 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors">
+          <Menu className="w-6 h-6" />
+        </button>
         <div className="flex-grow" />
         <button 
           onClick={toggleTheme}
@@ -84,7 +94,7 @@ const Dashboard = () => {
           {/* Folder */}
           <div className="col-span-3">
             <div className="w-full h-32 rounded-lg bg-blue-500 p-4 flex flex-col justify-end shadow-lg hover:shadow-xl transition-shadow">
-              <span className="text-sm text-white font-medium">software engineer</span>
+              <MdOutlineClass />
             </div>
           </div>
         </div>
