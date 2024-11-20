@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { FaRegFilePdf } from "react-icons/fa6";
 
 const CompareView = () => {
   return (
@@ -12,9 +13,8 @@ const CompareView = () => {
         {/* Teacher PDF */}
         <div className="flex flex-col items-center">
           <div className="mb-2 cursor-pointer group">
-            <div className="w-16 h-20 bg-red-500 rounded-sm relative flex items-center justify-center group-hover:bg-red-400 transition-colors">
-              <span className="text-white font-medium text-sm">PDF</span>
-              <div className="absolute top-0 right-0 w-4 h-4 bg-red-400 group-hover:bg-red-300"></div>
+            <div>
+              <FaRegFilePdf className="text-red-500 w-16 h-20"/>
             </div>
           </div>
           <span className="text-white text-sm">Teacher</span>
@@ -23,9 +23,8 @@ const CompareView = () => {
         {/* Student PDF */}
         <div className="flex flex-col items-center">
           <div className="mb-2 cursor-pointer group">
-            <div className="w-16 h-20 bg-red-500 rounded-sm relative flex items-center justify-center group-hover:bg-red-400 transition-colors">
-              <span className="text-white font-medium text-sm">PDF</span>
-              <div className="absolute top-0 right-0 w-4 h-4 bg-red-400 group-hover:bg-red-300"></div>
+            <div>
+              <FaRegFilePdf className="text-red-500 w-16 h-20" />
             </div>
           </div>
           <span className="text-white text-sm">Student</span>

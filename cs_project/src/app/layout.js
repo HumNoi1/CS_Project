@@ -1,11 +1,14 @@
-import './globals.css'
+import { ThemeProvider } from '@/context/ThemeContext';
+import './globals.css';
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }
