@@ -113,6 +113,9 @@ const Dashboard = () => {
               <Link href={`/class/${classItem.id}`}>
                 <div className="w-full h-32 rounded-lg bg-blue-500 p-4 flex flex-col justify-between shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
                   <MdOutlineClass className="text-white text-xl" />
+                  <span>
+                    {new Date(classItem.created_at).toLocaleDateString()}
+                  </span>
                   <div>
                     <h3 className="text-white font-medium truncate">
                       {classItem.class_name}
