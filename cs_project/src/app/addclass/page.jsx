@@ -1,16 +1,20 @@
 'use client';
 
-//components
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { CircleArrowLeft } from 'lucide-react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useRouter } from 'next/navigation';
 
 const AddClassForm = () => {
+  const router = useRouter();
+  const supabase = createClientComponentClient();
   const [formData, setFormData] = useState({
     className: '',
     term: '',
     subjectLessons: ''
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,10 +24,41 @@ const AddClassForm = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Handle form submission
+    setLoading(true);
+
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) throw new Error('No user found');
+
+      // Insert class data
+      const { data, error } = await supabase
+        .from('classes')
+        .insert([
+          {
+            class_name: formData.className,
+            term: formData.term,
+            subject_lessons: formData.subjectLessons,
+            teacher_id: user.id,
+            created_at: new Date().toISOString()
+          }
+        ])
+        .select();
+
+      if (error) throw error;
+
+      router.push('/dashboards');
+      router.refresh();
+      
+    } catch (error) {
+      console.error('Error adding class:', error);
+      alert('Failed to add class');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,7 +77,7 @@ const AddClassForm = () => {
           <h2 className="text-2xl font-semibold mb-6">Add new class</h2>
           
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
+          <div className="space-y-2">
               <input 
                 type="text"
                 name="className"
@@ -52,40 +87,10 @@ const AddClassForm = () => {
                 className="w-full px-4 py-2 rounded-md bg-slate-700 border border-slate-600 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-
-            <div className="space-y-2">
-              <label className="block text-lg font-medium">Term</label>
-              <input 
-                type="text"
-                name="term"
-                value={formData.term}
-                onChange={handleChange}
-                placeholder="Enter Term"
-                className="w-full px-4 py-2 rounded-md bg-slate-700 border border-slate-600 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-lg font-medium">Subject lessons</label>
-              <input 
-                type="text"
-                name="subjectLessons"
-                value={formData.subjectLessons}
-                onChange={handleChange}
-                placeholder="Enter subject lessons"
-                className="w-full px-4 py-2 rounded-md bg-slate-700 border border-slate-600 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
             <div className="flex justify-center">
-              <Link href='/folder'>
-                <button 
-                  type="submit"
-                  className="px-8 py-2 bg-slate-600 hover:bg-slate-700 text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  ADD
-                </button>
-              </Link>
+              <button type="submit" disabled={loading} className="px-8 py-2 bg-slate-700 text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-blue-500 disabled:opacity-50">
+                {loading ? 'Adding...' : 'ADD'}
+              </button>
             </div>
           </form>
         </div>

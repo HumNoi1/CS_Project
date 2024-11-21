@@ -15,17 +15,33 @@ const Dashboard = () => {
   const supabase = createClientComponentClient();
   const [loading, setLoading] = useState(true);
   const { theme, toggleTheme } = useTheme();
+  const [classes, setClasses] = useState([]);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error || !session) {
-        router.push('/login');
+    const loadClasses = async () => {
+      try {
+        const {data: {user}} = await supabase.auth.getUser();
+        if (!user) {
+          router.push('/login');
+          return;
+        }
+
+        const {data: classesData, error} = await supabase
+          .from('classes')
+          .select('*')
+          .eq('teacher_id', user.id)
+          .order('created_at', {ascending: false});
+
+        if (error) throw error;
+        setClasses(classesData);
+      } catch (error) {
+        console.error('Error loading classes:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    checkUser();
+    loadClasses();
   }, [router, supabase]);
 
   const handleLogout = async () => {
@@ -92,11 +108,23 @@ const Dashboard = () => {
           </div>
           
           {/* Folder */}
-          <div className="col-span-3">
-            <div className="w-full h-32 rounded-lg bg-blue-500 p-4 flex flex-col justify-end shadow-lg hover:shadow-xl transition-shadow">
-              <MdOutlineClass />
+          {classes.map((classItem) => (
+            <div key={classItem.id} className="col-span-3">
+              <Link href={`/class/${classItem.id}`}>
+                <div className="w-full h-32 rounded-lg bg-blue-500 p-4 flex flex-col justify-between shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                  <MdOutlineClass className="text-white text-xl" />
+                  <div>
+                    <h3 className="text-white font-medium truncate">
+                      {classItem.class_name}
+                    </h3>
+                    <p className="text-white/80 text-sm">
+                      Term: {classItem.term}
+                    </p>
+                  </div>
+                </div>
+              </Link>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>

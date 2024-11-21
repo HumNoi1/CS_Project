@@ -2,10 +2,17 @@
 
 import React from 'react';
 import { FaRegFilePdf } from "react-icons/fa6";
+import Link from "next/link";
+import { CircleArrowLeft } from "lucide-react";
 
 const CompareView = () => {
   return (
     <div className="min-h-screen bg-slate-900 p-6">
+      <Link href="./dashboards">
+        <button className="text-white hover:bg-slate-700 p-2 rounded transition-colors">
+          <CircleArrowLeft />
+        </button>
+      </Link>
       <h1 className="text-white text-xl mb-8">compare</h1>
 
       {/* PDF Icons Container */}
