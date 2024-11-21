@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { FaRegFilePdf } from "react-icons/fa6";
 import Link from "next/link";
-import { CircleArrowLeft, Upload } from "lucide-react";
+import { CircleArrowLeft } from "lucide-react";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 const CompareView = () => {
@@ -35,7 +35,7 @@ const CompareView = () => {
         setStudentFile({ path: filePath, url: publicUrl });
       }
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error('Upload error:', error);
       alert('Upload failed');
     }
   };
@@ -48,23 +48,21 @@ const CompareView = () => {
     
     setLoading(true);
     try {
-      // Here you would call your LLM API endpoint
-      // For now, using mock data
-      const mockAnalysis = {
-        studentScore: 6,
-        studentFeedback: [
-          "ตอบคำถามทั่วไปอย่างถูกต้อง",
-          "ไม่ได้พูดถึงประเด็นที่ 2 (ความยืดหยุ่น)",
-        ],
-        teacherScore: 8,
-        teacherFeedback: [
-          "ตอบคำถามทั้งสองประการทั่วไปอย่างถูกต้อง",
-          "นำเสนอเหตุผลและอธิบายได้ชัดเจน",
-        ]
-      };
-      setAnalysis(mockAnalysis);
+      const teacherText = await extractPDFText(teacherFile.url);
+      const studentText = await extractPDFText(studentFile.url);
+
+      const response = await fetch('http://localhost:8000/compare', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teacherText, studentText })
+      });
+
+      if (!response.ok) throw new Error('Analysis failed');
+
+      const analysisResult = await response.json();
+      setAnalysis(analysisResult);
     } catch (error) {
-      console.error('Analysis failed:', error);
+      console.error('Analysis error:', error);
       alert('Analysis failed');
     } finally {
       setLoading(false);
@@ -73,7 +71,6 @@ const CompareView = () => {
 
   const approveGrade = async () => {
     try {
-      // Save final grade to database
       const { error } = await supabase
         .from('grades')
         .insert({
@@ -85,9 +82,9 @@ const CompareView = () => {
         });
 
       if (error) throw error;
-      alert('Grade approved and saved');
+      alert('Grade approved');
     } catch (error) {
-      console.error('Error saving grade:', error);
+      console.error('Grade error:', error);
       alert('Failed to save grade');
     }
   };
