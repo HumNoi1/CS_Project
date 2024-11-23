@@ -1,0 +1,6 @@
+langchain
+openai
+supabase
+python-dotenv
+requests
+pypdf
