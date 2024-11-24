@@ -9,6 +9,7 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.document_loaders import TextLoader, PDFLoader
 import tempfile
 import requests
+import uuid  # เพิ่ม import uuid
 
 class RAGPipeline:
     def __init__(self):
@@ -50,7 +51,7 @@ class RAGPipeline:
         
         self.chat_history = []
 
-    async def process_file(self, file_id: int, class_id: int):
+    async def process_file(self, file_id: str, class_id: str):  # เปลี่ยนจาก int เป็น str สำหรับ UUID
         """Process and embed a file from Supabase storage"""
         try:
             # Get file metadata from database
@@ -85,8 +86,8 @@ class RAGPipeline:
             # Add metadata
             for split in splits:
                 split.metadata.update({
-                    'file_id': file_id,
-                    'class_id': class_id,
+                    'file_id': uuid.UUID(file_id),  # แปลง string เป็น UUID object
+                    'class_id': uuid.UUID(class_id),
                     'file_name': file_info['file_name']
                 })
             
@@ -101,16 +102,17 @@ class RAGPipeline:
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-    async def query_documents(self, query: str, class_id: int):
+    async def query_documents(self, query: str, class_id: str):  # เปลี่ยนจาก int เป็น str สำหรับ UUID
         """Query documents using RAG"""
         try:
             # Add class_id filter to retriever
-            filter_dict = {"metadata": {"class_id": class_id}}
+            filter_dict = {"metadata": {"class_id": uuid.UUID(class_id)}}  # แปลง string เป็น UUID object
             
             # Get response from QA chain
             response = await self.qa_chain.acall({
                 "question": query,
-                "chat_history": self.chat_history
+                "chat_history": self.chat_history,
+                "filter": filter_dict
             })
             
             # Update chat history
@@ -122,7 +124,7 @@ class RAGPipeline:
                 sources.append({
                     'content': doc.page_content,
                     'file_name': doc.metadata['file_name'],
-                    'file_id': doc.metadata['file_id']
+                    'file_id': str(doc.metadata['file_id'])  # แปลง UUID object กลับเป็น string
                 })
             
             return {
@@ -139,31 +141,10 @@ class RAGPipeline:
         self.chat_history = []
 
 # API Routes handler
-async def handle_process_file(file_id: int, class_id: int):
+async def handle_process_file(file_id: str, class_id: str):  # เปลี่ยนจาก int เป็น str
     rag = RAGPipeline()
     return await rag.process_file(file_id, class_id)
 
-async def handle_query(query: str, class_id: int):
+async def handle_query(query: str, class_id: str):  # เปลี่ยนจาก int เป็น str
     rag = RAGPipeline()
     return await rag.query_documents(query, class_id)
-
-# Example usage
-if __name__ == "__main__":
-    import asyncio
-    
-    async def main():
-        # Example file processing
-        result = await handle_process_file(
-            file_id=123,  # Replace with actual file ID
-            class_id=456  # Replace with actual class ID
-        )
-        print("File processing result:", result)
-        
-        # Example query
-        result = await handle_query(
-            query="What are the main points discussed in the documents?",
-            class_id=456  # Replace with actual class ID
-        )
-        print("Query result:", result)
-    
-    asyncio.run(main())
